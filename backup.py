@@ -7,9 +7,9 @@ import shlex
 
 def movefiles(indirectory, outdirectory):
 
-    basepath = "/home/pi/scripts/python/"
+    basepath = "/home/pi/projects/cameramon/"
     if os.name == 'nt':  # sys.platform == 'win32':
-        basepath = "D:/Users/werner/scripts/python/"
+        basepath = "C:/Users/werne/projects/cameramon/"
 
     # Walk the tree.
     for root, directories, files in os.walk(indirectory):
