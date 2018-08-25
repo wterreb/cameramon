@@ -27,7 +27,7 @@ class MyHandler(PatternMatchingEventHandler):
             filefullpath = os.path.abspath(event.src_path)
 
             # Get the datetime string
-            datestr = "python /home/pi/scripts/python/get_datetime.py -i " + filename
+            datestr = "python /home/pi/projects/cameramon/get_datetime.py -i " + filename
             p = Popen(shlex.split(datestr), stdin=PIPE, stdout=PIPE)
             datetimestr =  p.stdout.readline().decode('utf-8') # read the first line
             datetimestr = datetimestr.replace('\n', ' ').replace('\r', '')  # remove newline
@@ -38,7 +38,7 @@ class MyHandler(PatternMatchingEventHandler):
             newfile = "/home/pi/webcam_latest/" + filename[:filename.find("_")]
 
 	        # Add datetime info to the image
-            addtextcmd = "python /home/pi/scripts/python/add_text.py -i " + event.src_path + " -o " + newfile + " -t '" + datetimestr + "'"
+            addtextcmd = "python /home/pi/projects/cameramon/add_text.py -i " + event.src_path + " -o " + newfile + " -t '" + datetimestr + "'"
             print(addtextcmd)
             p = Popen(shlex.split(addtextcmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
             print (p.stdout.readline())
