@@ -6,8 +6,15 @@ from watchdog.events import PatternMatchingEventHandler
 from shutil import copyfile
 from shutil import move
 from subprocess import Popen, PIPE
-from time import sleep
 import shlex
+from time import sleep
+
+
+def runpython(strcmd):
+    p = Popen(shlex.split(strcmd), stdin=PIPE, stdout=PIPE)
+    outstr = (p.stdout.readline()).decode('utf-8')  # read the first line
+    outstr = outstr.replace('\n', ' ').replace('\r', '')  # remove newline
+    print(outstr)
 
 class MyHandler(PatternMatchingEventHandler):
     patterns=["*.jpg"]
@@ -21,72 +28,28 @@ class MyHandler(PatternMatchingEventHandler):
         event.src_path
             path/to/observed/file
         """
+
+        #watchfolder = "/home/pi/webcam/"
+        basepath = "/home/pi/projects/cameramon/"
+        outfolder = "/mnt/mycloud/wernerterreblanche/webcam_backup/"
+
+
         print(event.src_path, event.event_type)  # print now only for debug
         if event.is_directory == False and event.event_type == 'created':
             filename = os.path.basename(event.src_path)
             filefullpath = os.path.abspath(event.src_path)
+            infile = event.src_path
+            outfile = outfolder + filename
 
-            # Get the datetime string
-            datestr = "python /home/pi/projects/cameramon/get_datetime.py -i " + filename
-            p = Popen(shlex.split(datestr), stdin=PIPE, stdout=PIPE)
-            datetimestr =  p.stdout.readline().decode('utf-8') # read the first line
-            datetimestr = datetimestr.replace('\n', ' ').replace('\r', '')  # remove newline
+            # Add date/time text to picture and save it it to the output folder
+            convertstr = "python " + basepath + "add_text.py -i " + infile + " -o " + outfile
+            runpython(convertstr)
 
-            #filepath = os.path.dirname(os.path.abspath(event.src_path))
-            backup_filepath = "/mnt/mycloud/wernerterreblanche/webcam_backup/"
-            #newfile = filepath + "webcam_latest/" + filename[:filename.find("_")]
-            newfile = "/home/pi/webcam_latest/" + filename[:filename.find("_")]
+            # Update the web server with the latest files
+            convertstr = "python " + basepath + "update_webserver.py -i " + outfile
+            runpython(convertstr)
 
-	        # Add datetime info to the image
-            addtextcmd = "python /home/pi/projects/cameramon/add_text.py -i " + event.src_path + " -o " + newfile + " -t '" + datetimestr + "'"
-            print(addtextcmd)
-            p = Popen(shlex.split(addtextcmd), stdin=PIPE, stdout=PIPE, stderr=PIPE)
-            print (p.stdout.readline())
-            sleep(2)  # Wait up to 2 seconds for the file to be created
-
-            # Create all latest files if they do no yet exist (This should only happen once)
-            if os.path.isfile(newfile + "_10.jpg") == False :
-                copyfile(newfile, newfile + "_0.jpg")
-                copyfile(newfile, newfile + "_1.jpg")
-                copyfile(newfile, newfile + "_2.jpg")
-                copyfile(newfile, newfile + "_3.jpg")
-                copyfile(newfile, newfile + "_4.jpg")
-                copyfile(newfile, newfile + "_5.jpg")
-                copyfile(newfile, newfile + "_6.jpg")
-                copyfile(newfile, newfile + "_7.jpg")
-                copyfile(newfile, newfile + "_8.jpg")
-                copyfile(newfile, newfile + "_9.jpg")
-                copyfile(newfile, newfile + "_10.jpg")
-
-            if os.path.isfile(newfile):
-                sleep(0.1)
-                move(newfile + "_9.jpg", newfile + "_10.jpg")
-                sleep(0.1)
-                move(newfile + "_8.jpg", newfile + "_9.jpg")
-                sleep(0.1)
-                move(newfile + "_7.jpg", newfile + "_8.jpg")
-                sleep(0.1)
-                move(newfile + "_6.jpg", newfile + "_7.jpg")
-                sleep(0.1)
-                move(newfile + "_5.jpg", newfile + "_6.jpg")
-                sleep(0.1)
-                move(newfile + "_4.jpg", newfile + "_5.jpg")
-                sleep(0.1)
-                move(newfile + "_3.jpg", newfile + "_4.jpg")
-                sleep(0.1)
-                move(newfile + "_2.jpg", newfile + "_3.jpg")
-                sleep(0.1)
-                move(newfile + "_1.jpg", newfile + "_2.jpg")
-                sleep(0.1)
-                move(newfile + "_0.jpg", newfile + "_1.jpg")
-                sleep(0.1)
-                copyfile(newfile, newfile + "_0.jpg")
-                sleep(0.1)
-                copyfile(newfile, backup_filepath  + filename)  # Copy the modified new file to the MyCloud server
-            else:
-                print ("File does not exist : " + newfile)
-
-            os.remove(newfile)
+            print('filefullpath = ' + filefullpath)
             os.remove(filefullpath)   # Delete the original file from the SD card
 
     def on_modified(self, event):

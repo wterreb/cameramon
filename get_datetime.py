@@ -2,11 +2,14 @@
 
 import sys
 import getopt
+import os
 
-def extract(filename):
+def extract(fname):
    #filename = "WashingRoom_2017060418493101.jpg"
-   camera = filename[:filename.find("_")]
-   filename = filename[filename.find("_")+1:]
+   head, tail = os.path.split(fname)
+   fnameonly = tail
+   camera = fnameonly[:fnameonly.find("_")]
+   filename = fname[fname.find("_")+1:]
    year = filename[:4]
    month = filename[4:6]
    day = filename[6:8]
