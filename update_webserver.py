@@ -14,7 +14,7 @@ def arrangefiles(sourcefile, newname):
     matchObj = re.search('(.*)\.', newname)
     newname = matchObj.group(1)
 
-    for x in range(9):
+    for x in range(30):
         oldfile = newname + "_" + str(x) + ".jpg"
         newfile = newname + "_" + str(x + 1) + ".jpg"
         if os.path.isfile(oldfile):
