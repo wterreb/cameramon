@@ -17,7 +17,8 @@ def extract(fname):
    day = dtime.day
    hour = dtime.hour
    minute = dtime.minute
-   datestr = "%d_%02d_%02d_%02dh%02d" % (year, month, day, hour, minute)
+   second = dtime.second
+   datestr = "%d_%02d_%02d_%02dh%02d_%02d" % (year, month, day, hour, minute, second)
    outstr = datestr + "_" + camera
    print(outstr)
 

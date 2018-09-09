@@ -12,11 +12,6 @@ from time import sleep
 
 def convert(infile, outfile, text):
    basepath = os.getcwd() + "/"
-   #print(basepath)
-   #textstr = "python " + basepath + "get_datetime.py -i " + basepath + infile
-   #p = Popen(shlex.split(textstr), stdin=PIPE, stdout=PIPE)
-   #datetime = (p.stdout.readline()).decode('utf-8')  # read the first line
-   #datetimestr = datetime.replace('\n', '').replace('\r', '')  # remove newline
    convertcmd = "/usr/bin/convert " + infile + " -pointsize 30 -fill yellow -annotate +10+471 '" + text + "' " + \
                 outfile
    print(convertcmd)
