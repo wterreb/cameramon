@@ -10,14 +10,15 @@ from subprocess import Popen, PIPE
 from time import sleep
 
 
-def convert(infile, outfile):
+def convert(infile, outfile, text):
    basepath = os.getcwd() + "/"
    #print(basepath)
-   textstr = "python " + basepath + "get_datetime.py -i " + basepath + infile
-   p = Popen(shlex.split(textstr), stdin=PIPE, stdout=PIPE)
-   datetime = (p.stdout.readline()).decode('utf-8')  # read the first line
-   datetimestr = datetime.replace('\n', '').replace('\r', '')  # remove newline
-   convertcmd = "/usr/bin/convert " + infile + " -pointsize 30 -fill yellow -annotate +10+471 '" + datetimestr + "' " + outfile
+   #textstr = "python " + basepath + "get_datetime.py -i " + basepath + infile
+   #p = Popen(shlex.split(textstr), stdin=PIPE, stdout=PIPE)
+   #datetime = (p.stdout.readline()).decode('utf-8')  # read the first line
+   #datetimestr = datetime.replace('\n', '').replace('\r', '')  # remove newline
+   convertcmd = "/usr/bin/convert " + infile + " -pointsize 30 -fill yellow -annotate +10+471 '" + text + "' " + \
+                outfile
    print(convertcmd)
    call(shlex.split(convertcmd))
    sleep(2)  # Wait up to 2 seconds for the file to be created
@@ -30,7 +31,7 @@ def main(argv):
     outputfile = ""
     text = ''
     try:
-        opts, args = getopt.getopt(argv,"hi:o:",["help", "ifile=", "ofile="])
+        opts, args = getopt.getopt(argv,"hi:o:t:",["help", "ifile=", "ofile-", "text=" ])
     except getopt.GetoptError as err:
         print str(err)
         usage()
@@ -43,9 +44,11 @@ def main(argv):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
             outputfile = arg
+        elif opt in ("-t", "--text"):
+            text = arg
 
     if os.name != 'nt':
-        convert(inputfile, outputfile)
+        convert(inputfile, outputfile, text)
     else:
         print("Not converted on Windows PC")
 

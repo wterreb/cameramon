@@ -3,6 +3,7 @@
 import sys
 import getopt
 import os
+import datetime
 
 def extract(fname):
    #filename = "WashingRoom_2017060418493101.jpg"
@@ -10,12 +11,14 @@ def extract(fname):
    fnameonly = tail
    camera = fnameonly[:fnameonly.find("_")]
    filename = fname[fname.find("_")+1:]
-   year = filename[:4]
-   month = filename[4:6]
-   day = filename[6:8]
-   hour = filename[8:10]
-   minute = filename[10:12]
-   outstr = camera + " " + year + "/" + month + "/" + day + " " + hour + ":" + minute
+   dtime = datetime.datetime.now()
+   year = dtime.year
+   month = dtime.month
+   day = dtime.day
+   hour = dtime.hour
+   minute = dtime.minute
+   datestr = "%d_%02d_%02d_%02dh%02d" % (year, month, day, hour, minute)
+   outstr = datestr + "_" + camera
    print(outstr)
 
 def main(argv):

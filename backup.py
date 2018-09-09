@@ -4,7 +4,7 @@ import sys
 import getopt
 from subprocess import Popen, PIPE
 import shlex
-
+from subprocess import call
 
 def runpython(strcmd):
     p = Popen(shlex.split(strcmd), stdin=PIPE, stdout=PIPE)
@@ -23,21 +23,25 @@ def movefiles(indirectory, outdirectory):
         for filename in files:
             # Join the two strings in order to form the full filepath.
             infilepath = os.path.join(indirectory, filename)
-            outputpath = os.path.join(outdirectory, filename)
-            print("Reading : " + infilepath)
-            print("Writing : " + outputpath)
 
-            # Add text to picture and move it to the output folder
-            convertstr = "python " + basepath + "add_text.py -i " + infilepath + " -o " + outputpath
-            runpython(convertstr)
+            # create text that will be added to the picture
+            textstr = "python " + basepath + "get_datetime.py -i " + infilepath
+            p = Popen(shlex.split(textstr), stdin=PIPE, stdout=PIPE)
+            datetime = (p.stdout.readline()).decode('utf-8')  # read the first line
+            newtxt = datetime.replace('\n', '').replace('\r', '')  # remove newline
+
+            # add the text to the picture and save it in its new location
+            outputpath = os.path.join(outdirectory, newtxt + ".jpg")
+            convertstr = "python " + basepath + "add_text.py -i " + infilepath + " -o " + outputpath + " -t " + newtxt
+            call(shlex.split(convertstr))
 
             # Update the web server with the latest files
             convertstr = "python " + basepath + "update_webserver.py -i " + outputpath
-            runpython(convertstr)
+            call(shlex.split(convertstr))
 
             # Remove the file from the SD CARD
             removestr = "rm " + infilepath
-            print("Deleting : " + infilepath);
+            print(removestr);
             runpython(removestr)
 
 def main(argv):
